@@ -21,7 +21,6 @@ class Deserializer (Thread):
 
     # deserializzatore per messaggi in ingresso nel canale
     def deserializer(self):
-
         # se il messaggio è dall'app e sequence è corretto
         if self.message[0] is '#' and self.message[-1] is '#' and self.message[1] is 'a':
             # se sto leggendo una richiesta di esecuzione di un motore
