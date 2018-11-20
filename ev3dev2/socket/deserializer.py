@@ -92,6 +92,7 @@ mess = '012345'
 mess[0:2] = 01
 '''
 
+
 '''
 
 in quantità per ottenere il valore vero bisognerà sottrarre 110 al valore nel messaggio

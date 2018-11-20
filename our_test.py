@@ -4,33 +4,47 @@ from ev3dev2.sensor import *
 from ev3dev2.sensor.lego import *
 from ev3dev2.sound import *
 from ev3dev2.led import *
+from ev3dev2.utility.degreeconverter import *
 import socket
 import sys
 import time
 
 print("i'm ready to spin...")
 
-touch = TouchSensor(INPUT_1)
-sollevatore = MediumMotor(OUTPUT_D)
+t_down = TouchSensor(INPUT_2)
+t_up = TouchSensor(INPUT_1)
+
+braccio = LargeMotor(OUTPUT_C)
+dir = FORWARD
 
 
-def degrees_sollevatore(degrees, direction):
-    # comandi per il sollevatore
-    up = 'up'
-    down = 'down'
-    command = -1
-    conversion = 8600
-    if direction is up:
-        command = 1
-    return command*degrees*(conversion/360)
+def get_swith(switcher):
+    func = switcher
+    func()
 
 
-def wait():
-    while not touch.is_pressed:
-        time.sleep(0.01)
+def up():
+    braccio.on_for_degrees(SpeedPercent(100), degrees_braccio(BACKWARD, 3))
 
+
+def down():
+    braccio.on_for_degrees(SpeedPercent(100), degrees_braccio(FORWARD, 3))
+
+
+switch = {
+    FORWARD: down,
+    BACKWARD: up
+}
 
 while 1:
-    wait()
-    # sollevatore.on_for_degrees(SpeedPercent(50), degrees_sollevatore(1, 'up'))
-    sollevatore.on_for_degrees(SpeedPercent(100), degrees_sollevatore(1, 'down'))
+    timeit = 0
+    flag = 0
+    while not t_down.is_pressed and not t_up.is_pressed:
+        time.sleep(0.01)
+    if t_down.is_pressed:
+        print('DOWN pressed')
+        dir = FORWARD
+    elif t_up.is_pressed:
+        print('UP pressed')
+        dir = BACKWARD
+    get_swith(switch.get(dir))

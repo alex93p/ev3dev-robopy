@@ -14,10 +14,10 @@ def degrees_sollevatore(direction, degrees):
 
 def degrees_braccio(direction, degrees):
     # comandi per il braccio
-    command = 1
-    conversion = 36
+    command = -1
+    conversion = 1310
     if direction is FORWARD:
-        command = -1
+        command = 1
     return command*degrees*(conversion/360)
 
 
