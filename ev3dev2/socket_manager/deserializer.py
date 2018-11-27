@@ -1,12 +1,7 @@
 import time
 import sys
 from threading import Thread
-from ev3dev2.utility.global_variable import *
 from ev3dev2.motor import *
-from ev3dev2.sensor import *
-from ev3dev2.sensor.lego import *
-from ev3dev2.sound import *
-from ev3dev2.led import *
 from ev3dev2.utility.degreeconverter import *
 
 
@@ -14,14 +9,13 @@ class Deserializer (Thread):
 
     def __init__(self, message):
         Thread.__init__(self)
-        self.message = str(message)[2:-1]
+        self.message = message
 
     def run(self):
         self.deserializer()
 
     # deserializzatore per messaggi in ingresso nel canale
     def deserializer(self):
-        # se il messaggio è dall'app e sequence è corretto
         if self.message[0] is '#' and self.message[-1] is '#' and self.message[1] is 'a':
             # se sto leggendo una richiesta di esecuzione di un motore
             if self.message[2] is 'e':
@@ -41,12 +35,13 @@ class Deserializer (Thread):
     def get_motor_option(self, option):
         direction = option[0]
         quantity = int(option[1:4]) - 110
-        speed = int(option[4:6]) - 110
+        speed = int(option[4:7]) - 110
         return direction, quantity, speed
 
     def motor_base(self, option):
         direction, quantity, speed = self.get_motor_option(option)
         base = LargeMotor(OUTPUT_A)
+        print('pos: ', base.position // 3)
         base.on_for_degrees(SpeedPercent(speed), degrees_base(direction, quantity))
 
     def motor_braccio(self, option):
