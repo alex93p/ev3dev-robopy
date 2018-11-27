@@ -41,7 +41,7 @@ while 1:
     print('Connect with ' + addr[0] + ':' + str(addr[1]))
 
     # mettiamo in un buffer quello che riceviamo dal socket -> 32: max byte / default 1024
-    buf = conn.recv(32)
+    buf = conn.recv(12)
     if buf is not None:
         thread_message = Deserializer(buf)
         thread_message.start()
