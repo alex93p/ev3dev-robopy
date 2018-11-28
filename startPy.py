@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import socket
 from _thread import *
@@ -23,10 +23,8 @@ def thread_client(conn):
         print('->', msg, '<-')
         if not data:
             waiting()
-        thread = Deserializer(msg)
+        thread = Deserializer(conn, msg)
         thread.start()
-        # reply = 'Server output: ' + msg
-        # conn.sendall(str.encode(reply))
     conn.close()
 
 
