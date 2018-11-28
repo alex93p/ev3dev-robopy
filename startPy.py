@@ -16,6 +16,7 @@ print('# waiting for an input...\n')
 
 
 def thread_client(conn):
+    print('# server IP:', socket.gethostbyname(socket.gethostname()), '\n')
     conn.send(str.encode('Welcome to the server...\n'))
     while 1:
         data = conn.recv(2048)
