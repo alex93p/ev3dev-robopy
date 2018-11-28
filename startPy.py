@@ -15,7 +15,7 @@ s.listen(5)
 print('# waiting for an input...\n')
 
 
-def thread_client(conn):
+def thread_client(sock, conn):
     print('# server IP:', socket.gethostbyname(socket.gethostname()), '\n')
     conn.send(str.encode('Welcome to the server...\n'))
     while 1:
@@ -24,6 +24,9 @@ def thread_client(conn):
         print('->', msg, '<-')
         if not data:
             waiting()
+        if msg == '#shutdown#':
+            print(msg, '-> killing the socket!')
+            sock.close()
         thread = Deserializer(conn, msg)
         thread.start()
     conn.close()
@@ -33,7 +36,7 @@ def waiting(sock):
     while 1:
         conn, addr = sock.accept()
         print('# connected to: ' + addr[0] + ':' + str(addr[1]))
-        start_new_thread(thread_client, (conn,))
+        start_new_thread(thread_client, (sock, conn,))
 
 
 waiting(s)
