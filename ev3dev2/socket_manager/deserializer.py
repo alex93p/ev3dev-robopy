@@ -43,11 +43,11 @@ class Deserializer (Thread):
             print('WTF!! strange message:  ' + self.message)
 
     def thread_sender_motor_info(self, conn, position, typem):
-        message = '#r-' + 'm-' + str(typem) + '-' + str(position) + '-#'
+        message = '#r&' + 'm&' + str(typem) + '&' + str(position) + '&#'
         conn.send(str.encode(message))
 
     def thread_sender_sensor_info(self, conn, info, types):
-        message = '#r-' + 's-' + str(types) + '-' + str(info) + '-#'
+        message = '#r&' + 's&' + str(types) + '&' + str(info) + '&#'
         conn.send(str.encode(message))
 
     def get_motor_option(self, option):
@@ -60,19 +60,19 @@ class Deserializer (Thread):
         direction, quantity, speed = self.get_motor_option(option)
         base = LargeMotor(OUTPUT_A)
         base.on_for_degrees(SpeedPercent(speed), degrees_base(direction, quantity))
-        start_new_thread(self.thread_sender_motor_info, (self.conn, base.position, 1,))
+        start_new_thread(self.thread_sender_motor_info, (self.conn, base.position // 3, 1,))
 
     def motor_braccio(self, option):
         direction, quantity, speed = self.get_motor_option(option)
         braccio = LargeMotor(OUTPUT_C)
         braccio.on_for_degrees(SpeedPercent(speed), degrees_braccio(direction, quantity))
-        start_new_thread(self.thread_sender_motor_info, (self.conn, braccio.position, 2,))
+        start_new_thread(self.thread_sender_motor_info, (self.conn, braccio.position // -4, 2,))
 
     def motor_sollevatore(self, option):
         direction, quantity, speed = self.get_motor_option(option)
         soll = MediumMotor(OUTPUT_D)
         soll.on_for_degrees(SpeedPercent(speed), degrees_sollevatore(direction, quantity))
-        start_new_thread(self.thread_sender_motor_info, (self.conn, soll.position, 3,))
+        start_new_thread(self.thread_sender_motor_info, (self.conn, soll.position // 24, 3,))
 
     def sensor_touch(self):
         touch = TouchSensor(INPUT_1)
