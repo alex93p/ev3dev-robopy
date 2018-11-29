@@ -1,22 +1,12 @@
 #!/usr/bin/env python3
 
 import socket
-import sys
-from ev3dev2.socket.deserializer import Deserializer
+from _thread import *
+from ev3dev2.socket_manager.deserializer import *
 
-hostname = socket.gethostname()
-HOST = socket.gethostbyname(hostname)  # ip localhost EV3
-PORT = 8888  # port localhost EV3
-print('Host IP: ' + HOST)
-
-# creiamo il socket per aprire il canale di comunicazione con `socket.socket`
-# socket.AF_INET -> Address Format, Internet = IP Addresses
-# socket.SOCK_STREAM -> comunicazione duplex (lettura / scrittura byte sul canale)
+host = ''
+port = 8888
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-print('Socket Created!')
-
-# Bindiamo il socket all'host e alla porta
 try:
     s.bind((HOST, PORT))
 except socket.error as err:
