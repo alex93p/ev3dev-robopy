@@ -59,7 +59,7 @@ class Deserializer (Thread):
     def motor_base(self, option):
         direction, quantity, speed = self.get_motor_option(option)
         base = LargeMotor(OUTPUT_A)
-        base.on_for_degrees(SpeedPercent(speed), degrees_base(direction, quantity))
+        base.on_for_degrees(SpeedPercent(speed), degrees_base(base.position, direction, quantity))
         start_new_thread(self.thread_sender_motor_info, (self.conn, base.position // 3, 1,))
 
     def motor_braccio(self, option):

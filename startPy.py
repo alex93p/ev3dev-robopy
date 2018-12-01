@@ -4,37 +4,38 @@ import socket
 from _thread import *
 from ev3dev2.socket_manager.deserializer import *
 
+
+def thread_client(sock, conn):
+    conn.send(str.encode('Welcome to the server...\n'))
+    while 1:
+        data = conn.recv(2048)
+        msg = data.decode('utf-8')
+        print('->', msg, '<-')
+        if not data:
+            waiting(sock)
+        if msg == '#shutdown#':
+            print(msg, '-> killing the socket!')
+            sock.close()
+        thread = Deserializer(conn, msg)
+        thread.start()
+    conn.close()
+
+
+def waiting(sock):
+    while 1:
+        conn, addr = sock.accept()
+        print('# connected to: ' + addr[0] + ':' + str(addr[1]))
+        start_new_thread(thread_client, (sock, conn,))
+
+
 host = ''
 port = 8888
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
-    s.bind((HOST, PORT))
-except socket.error as err:
-    s.detach()
-    s.close()
-    print('Bind Failed -> Error Code: ' + str(err[0]) + ', Message: ' + err[1])
-    sys.exit()
-print('Socket Bind Success!')
-
-
-# Mettiamo in ascolto il socket con `listen(10)` -> 10: protocollo TCP
+    s.bind((host, port))
+except socket.error as e:
+    print(str(e))
 s.listen(10)
-print('Socket is listening...')
-
-# conn, addr = s.accept()
-# print('Connect with ' + addr[0] + ':' + str(addr[1]))
-# Restiamo in ascolto sempre
-
-
-while 1:
-    conn, addr = s.accept()
-    print('Connect with ' + addr[0] + ':' + str(addr[1]))
-
-    # mettiamo in un buffer quello che riceviamo dal socket -> 32: max byte / default 1024
-    buf = conn.recv(12)
-    if buf is not None:
-        thread_message = Deserializer(buf)
-        thread_message.start()
-    print(buf)
-s.detach()
-s.close()
+print('# server IP:', socket.gethostbyname(socket.gethostname()), '\n')
+print('# waiting for an input...\n')
+waiting(s)

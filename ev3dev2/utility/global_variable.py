@@ -22,6 +22,19 @@ ULTRASONIC = 6
 CLOCKWISE = BACKWARD = DOWN = '+'
 ANTICLOCKWISE = FORWARD = UP = '-'
 
+
+# zero position
+START_BASE = START_BRACCIO = START_SOLL = 0
+# minime posizioni raggiungibili
+MIN_BASE = 0
+MIN_BRACCIO = 0
+MIN_SOLLEVATORE = 0
+
+# massime posizioni raggiungibili
+MAX_BASE = 270 * 3
+MAX_BRACCIO = 90 * 4
+MAX_SOLLEVATORE = 180 * 24
+
 # informazioni dei sensori ??
 
 

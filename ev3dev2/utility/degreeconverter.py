@@ -21,10 +21,16 @@ def degrees_braccio(direction, degrees):
     return command*degrees*4
 
 
-def degrees_base(direction, degrees):
+def degrees_base(position, direction, degrees):
     # comandi per la base
     # conversion = 1085
     command = -1
     if direction is CLOCKWISE:
         command = 1
-    return command*degrees*3
+    degrees *= command
+    if MIN_BASE <= (position + (degrees * 3)) <= MAX_BASE:
+        return degrees * 3
+    elif (position + (degrees * 3)) < MIN_BASE:
+        return MIN_BASE - position
+    else:
+        return (MAX_BASE - position) * 3
