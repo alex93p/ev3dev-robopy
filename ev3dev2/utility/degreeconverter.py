@@ -3,22 +3,34 @@
 from ev3dev2.utility.global_variable import *
 
 
-def degrees_sollevatore(direction, degrees):
+def degrees_sollevatore(position, direction, degrees):
     # comandi per il sollevatore
     command = 1
     # conversion = 8600
     if direction is UP:
         command = -1
-    return command*degrees*24
+    degrees *= command
+    if MAX_SOLLEVATORE <= (position + (degrees * 24)) <= MIN_SOLLEVATORE:
+        return degrees * 24
+    elif (position + (degrees * 24)) > MIN_SOLLEVATORE:
+        return MIN_SOLLEVATORE - position
+    else:
+        return MAX_SOLLEVATORE - position
 
 
-def degrees_braccio(direction, degrees):
+def degrees_braccio(position, direction, degrees):
     # comandi per il braccio
     command = -1
     # conversion = 1310
     if direction is FORWARD:
         command = 1
-    return command*degrees*4
+    degrees *= command
+    if MIN_BRACCIO <= (position + (degrees * 4)) <= MAX_BRACCIO:
+        return degrees * 4
+    elif (position + (degrees * 4)) < MIN_BRACCIO:
+        return MIN_BRACCIO - position
+    else:
+        return MAX_BRACCIO - position
 
 
 def degrees_base(position, direction, degrees):
@@ -28,9 +40,9 @@ def degrees_base(position, direction, degrees):
     if direction is CLOCKWISE:
         command = 1
     degrees *= command
-    if MIN_BASE <= (position + (degrees * 3)) <= MAX_BASE:
+    if MAX_BASE <= (position + (degrees * 3)) <= MIN_BASE:
         return degrees * 3
-    elif (position + (degrees * 3)) < MIN_BASE:
+    elif (position + (degrees * 3)) > MIN_BASE:
         return MIN_BASE - position
     else:
-        return (MAX_BASE - position) * 3
+        return MAX_BASE - position
