@@ -1,40 +1,36 @@
 #!/usr/bin/env python3
 
-# esempi di frame:
-
-# sequenza messaggi
-SEQUENCE = 0
-
-# messaggi con seq diversi
-MESSAGE_IN_QUE = []
-
 # tipi di motore
 BASE = 1
 BRACCIO = 2
 SOLLEVATORE = 3
 
 # tipi di sensori
-TOUCH = 4
-COLOR = 5
-ULTRASONIC = 6
+TOUCH = 1
+COLOR = 2
+ULTRASONIC = 3
 
 # movimenti dei motori
 CLOCKWISE = BACKWARD = DOWN = '+'
 ANTICLOCKWISE = FORWARD = UP = '-'
 
-# informazioni dei sensori ??
+
+# zero position
+START_BASE = START_BRACCIO = START_SOLL = 0
+
+# game position
+GAME_BASE = -180 * 3
+GAME_BRACCIO = 45 * 4
+GAME_SOLLEVATORE = -90 * 24
+
+# minime posizioni raggiungibili
+MIN_BASE = -45 * 3
+MIN_BRACCIO = 0 * 4
+MIN_SOLLEVATORE = -10 * 24
+
+# massime posizioni raggiungibili
+MAX_BASE = -315 * 3
+MAX_BRACCIO = 90 * 4
+MAX_SOLLEVATORE = -160 * 24
 
 
-def append_message(message):
-    global MESSAGE_IN_QUE
-    MESSAGE_IN_QUE += message
-
-
-def upgrade_seq():
-    global SEQUENCE
-    SEQUENCE += 1
-
-
-def set_seq_to_zero():
-    global SEQUENCE
-    SEQUENCE = 0
