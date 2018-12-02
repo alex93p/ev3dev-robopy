@@ -11,3 +11,4 @@ _build/
 docs/_build/
 .idea
 ev3dev2/.DS_Store
+.DS_Store
