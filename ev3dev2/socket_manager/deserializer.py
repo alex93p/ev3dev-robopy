@@ -44,6 +44,9 @@ class Deserializer (Thread):
         else:
             print('WTF!! strange message:  ' + self.message)
 
+    def thread_sender_info(self, string):
+        self.conn.send(encode(string))
+
     def thread_sender_motor_info(self, position, typem):
         message = '#r&' + 'm&' + str(typem) + '&' + str(position) + '&#'
         self.conn.send(str.encode(message))

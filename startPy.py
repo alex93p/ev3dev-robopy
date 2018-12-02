@@ -6,13 +6,10 @@ from ev3dev2.socket_manager.deserializer import *
 
 
 def thread_client(sock, conn):
-    conn.send(str.encode('Welcome to the server...\n'))
-    col = ColorSensor(INPUT_4)
     while 1:
         data = conn.recv(2048)
         msg = data.decode('utf-8')
         print('->', msg, '<-')
-        print('color:', col.reflected_light_intensity, col.color_name)
         if not data:
             waiting(sock)
         if msg == '#shutdown#':
@@ -22,12 +19,20 @@ def thread_client(sock, conn):
         thread.start()
     conn.close()
 
+def thread_costumer(sock, conn):
+    col = ColorSensor(INPUT_4)
+    while 1:
+        message = 'c' + '&' + str(col.reflected_light_intensity) + '&' + str(col.color_name)
+        conn.send(str.encode(message))
+        time.sleep(1)
+
 
 def waiting(sock):
     while 1:
         conn, addr = sock.accept()
         print('# connected to: ' + addr[0] + ':' + str(addr[1]))
         start_new_thread(thread_client, (sock, conn,))
+        start_new_thread(thread_costumer, (sock, conn,))
 
 
 host = ''
