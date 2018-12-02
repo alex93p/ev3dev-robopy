@@ -7,10 +7,15 @@ from ev3dev2.socket_manager.deserializer import *
 
 def thread_client(sock, conn):
     conn.send(str.encode('Welcome to the server...\n'))
+    col = ColorSensor(INPUT_4)
+    ultra = UltrasonicSensor(INPUT_3)
+    col.calibrate_white()
     while 1:
         data = conn.recv(2048)
         msg = data.decode('utf-8')
         print('->', msg, '<-')
+        print('color:', col.color, col.color_name)
+        print('dist:', ultra.distance_centimeters)
         if not data:
             waiting(sock)
         if msg == '#shutdown#':

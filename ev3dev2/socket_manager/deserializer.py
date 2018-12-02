@@ -18,38 +18,12 @@ class Deserializer (Thread):
     def run(self):
         self.deserialize()
 
-    def go_to_Zero(self):
-        base = LargeMotor(OUTPUT_A)
-        braccio = LargeMotor(OUTPUT_C)
-        soll = MediumMotor(OUTPUT_D)
-        delta = - soll.position
-        soll.on_for_degrees(SpeedPercent(100), delta)
-        self.thread_sender_motor_info(soll.position, SOLLEVATORE)
-        delta = - base.position
-        base.on_for_degrees(SpeedPercent(75), delta)
-        self.thread_sender_motor_info(base.position, BASE)
-        delta = - braccio.position
-        braccio.on_for_degrees(SpeedPercent(25), delta)
-        self.thread_sender_motor_info(braccio.position, BRACCIO)
-
-    def go_to_Start(self):
-        base = LargeMotor(OUTPUT_A)
-        braccio = LargeMotor(OUTPUT_C)
-        soll = MediumMotor(OUTPUT_D)
-        delta = (- soll.position) + GAME_SOLLEVATORE
-        soll.on_for_degrees(SpeedPercent(100), delta)
-        self.thread_sender_motor_info(soll.position, SOLLEVATORE)
-        delta = (- base.position) + GAME_BASE
-        base.on_for_degrees(SpeedPercent(75), delta)
-        self.thread_sender_motor_info(base.position, BASE)
-        delta = (- braccio.position) + GAME_BRACCIO
-        braccio.on_for_degrees(SpeedPercent(25), delta)
-        self.thread_sender_motor_info(braccio.position, BRACCIO)
-
     # deserializzatore per messaggi in ingresso nel canale
     def deserialize(self):
 
         if self.message[0] is '#' and self.message[-1] is '#' and self.message[1] is 'a':
+
+            print ('thread has read:', self.message[2:-1])
 
             # se sto leggendo una richiesta di esecuzione di un motore
             if self.message[2] is 'e':
@@ -65,12 +39,6 @@ class Deserializer (Thread):
                 # devo inviare un messaggio di debug
                 elif self.message[3] is 'd':
                     debug = 'debug'
-            elif self.message[2:-2] == 'zero':
-                # funzione zero
-                self.go_to_Zero()
-            elif self.message[2:-2] == 'start':
-                # funzione zero
-                self.go_to_Start()
 
         # il robot sta leggendo un messaggio corrotto
         else:
@@ -93,7 +61,7 @@ class Deserializer (Thread):
     def motor_base(self, option):
         direction, quantity, speed = self.get_motor_option(option)
         base = LargeMotor(OUTPUT_A)
-        base.on_for_degrees(SpeedPercent(speed), degrees_base(base.position, direction, quantity))
+        base.on_for_degrees(SpeedPercent(speed), degrees_base(direction, quantity))
         start_new_thread(self.thread_sender_motor_info, (base.position // 3, BASE,))
 
     def motor_base_on(self, option):
@@ -102,7 +70,6 @@ class Deserializer (Thread):
         base.on(SpeedPercent(int(direction + str(speed))))
 
     def motor_base_off(self, option):
-        direction, quantity, speed = self.get_motor_option(option)
         base = LargeMotor(OUTPUT_A)
         base.off()
 
@@ -118,7 +85,6 @@ class Deserializer (Thread):
         braccio.on(SpeedPercent(int(direction + str(speed))))
 
     def motor_braccio_off(self, option):
-        direction, quantity, speed = self.get_motor_option(option)
         braccio = LargeMotor(OUTPUT_C)
         braccio.off()
 
@@ -134,7 +100,6 @@ class Deserializer (Thread):
         soll.on(SpeedPercent(int(direction + str(speed))))
 
     def motor_sollevatore_off(self, option):
-        direction, quantity, speed = self.get_motor_option(option)
         soll = MediumMotor(OUTPUT_D)
         soll.off()
 
@@ -176,19 +141,3 @@ class Deserializer (Thread):
         3: sensor_ultrasonic
     }
 
-
-'''
-
-in quantità per ottenere il valore vero bisognerà sottrarre 110 al valore nel messaggio
-in velocità per ottenere il valore vero bisognerà sottrarre 110 al valore nel messaggio
-in posizione motore per ottenere il valore vero bisognerà sottrarre 180 al valore nel messaggio
-dati sensori come li mappiamo ???
-
-startoftext [1] '#' - android [1] 'a' - richiesta [1] 'r' - motore/sensore [1] 'm's' - tipo m/s [1] '1'..'6'- endoftext [1] '#'
-                                      - esecuzione [1] 'e' - tipo motore [1] '1'2'3' - direzione [1] '+'-' - quantità [3] '181'..'320' - velocità [3] '111'..'210' - endoftext [1] '#'
-                
-startoftext [1] '#' - robot [1] 'r' - debug [1] 'd' - message - endoftext [1] '#'
-                    - info [1] 'i' - motor [1] 'm' - tipo [1] '1'2'3' - posizione [3] '180'..'360'(minimo+180)(massimo+180) - endoftext [1] '#'
-                                   - sensor [1] 's' - tipo [1] '4'5'6' - dato [4/8] 'dati' - endoftext [1] '#'
-
-'''
