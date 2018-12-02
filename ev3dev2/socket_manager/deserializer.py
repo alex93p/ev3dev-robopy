@@ -62,17 +62,47 @@ class Deserializer (Thread):
         base.on_for_degrees(SpeedPercent(speed), degrees_base(direction, quantity))
         start_new_thread(self.thread_sender_motor_info, (self.conn, base.position // 3, 1,))
 
+    def motor_base_on(self, option):
+        direction, quantity, speed = self.get_motor_option(option)
+        base = LargeMotor(OUTPUT_A)
+        base.on(SpeedPercent(int(direction + str(speed))))
+
+    def motor_base_off(self, option):
+        direction, quantity, speed = self.get_motor_option(option)
+        base = LargeMotor(OUTPUT_A)
+        base.off()
+
     def motor_braccio(self, option):
         direction, quantity, speed = self.get_motor_option(option)
         braccio = LargeMotor(OUTPUT_C)
         braccio.on_for_degrees(SpeedPercent(speed), degrees_braccio(direction, quantity))
         start_new_thread(self.thread_sender_motor_info, (self.conn, braccio.position // -4, 2,))
 
+    def motor_braccio_on(self, option):
+        direction, quantity, speed = self.get_motor_option(option)
+        braccio = LargeMotor(OUTPUT_C)
+        braccio.on(SpeedPercent(int(direction + str(speed))))
+
+    def motor_braccio_off(self, option):
+        direction, quantity, speed = self.get_motor_option(option)
+        braccio = LargeMotor(OUTPUT_C)
+        braccio.off()
+
     def motor_sollevatore(self, option):
         direction, quantity, speed = self.get_motor_option(option)
         soll = MediumMotor(OUTPUT_D)
         soll.on_for_degrees(SpeedPercent(speed), degrees_sollevatore(direction, quantity))
         start_new_thread(self.thread_sender_motor_info, (self.conn, soll.position // 24, 3,))
+
+    def motor_sollevatore_on(self, option):
+        direction, quantity, speed = self.get_motor_option(option)
+        soll = MediumMotor(OUTPUT_D)
+        soll.on(SpeedPercent(int(direction + str(speed))))
+
+    def motor_sollevatore_off(self, option):
+        direction, quantity, speed = self.get_motor_option(option)
+        soll = MediumMotor(OUTPUT_D)
+        soll.off()
 
     def sensor_touch(self):
         touch = TouchSensor(INPUT_1)
@@ -96,8 +126,14 @@ class Deserializer (Thread):
 
     motor_type_switcher = {
         1: motor_base,
-        2: motor_braccio,
-        3: motor_sollevatore
+        2: motor_base_on,
+        3: motor_base_off,
+        4: motor_braccio,
+        5: motor_braccio_on,
+        6: motor_braccio_off,
+        7: motor_sollevatore,
+        8: motor_sollevatore_on,
+        9: motor_sollevatore_off
     }
 
     sensor_get_info_switcher = {
