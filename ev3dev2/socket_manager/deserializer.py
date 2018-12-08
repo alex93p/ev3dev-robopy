@@ -6,14 +6,17 @@ from ev3dev2.motor import *
 from ev3dev2.sensor.lego import *
 from ev3dev2.sensor import *
 from ev3dev2.utility.degreeconverter import *
+import ev3dev.ev3 as ev3
 
 
 class Deserializer (Thread):
 
-    def __init__(self, connection, message):
+    def __init__(self, sock, connection, message):
         Thread.__init__(self)
+        self.sock = sock
         self.conn = connection
         self.message = message
+
 
     def run(self):
         self.deserialize()
@@ -31,18 +34,43 @@ class Deserializer (Thread):
 
             # sto leggendo una richiesta di informazioni
             elif self.message[2] is 'r':
-
+                # devo inviare i dati del sensore colore
+                if self.message[3] is 'c':
+                    if self.message[4] is 'b':
+                        start_new_thread(self.thread_costumer, (self.sock, self.conn,))
+ 
                 # devo inviare un messaggio di informazioni di un sensore
-                if self.message[3] is 's':
+                elif self.message[3] is 's':
                     self.getter_info(self.sensor_get_info_switcher.get(int(self.message[4])))
 
                 # devo inviare un messaggio di debug
                 elif self.message[3] is 'd':
                     debug = 'debug'
 
+            # sto leggendo una richiesta per parlare
+            elif self.message[2] is 't':
+                msg = self.message[3:-1]
+                ev3.Sound.speak(msg).wait()
+
+
         # il robot sta leggendo un messaggio corrotto
         else:
             print('WTF!! strange message:  ' + self.message)
+
+    def thread_costumer(self, sock, conn):
+        light = 0;
+        condition = True;
+        col = ColorSensor(INPUT_4)
+
+        while condition:
+            if col.reflected_light_intensity > light:
+                light = col.reflected_light_intensity
+            elif col.reflected_light_intensity == 0 and light > 0:
+                condition = False
+            
+            message = 'c' + '&' + str(col.reflected_light_intensity) + '&' + str(col.color_name)
+            conn.send(str.encode(message))
+            time.sleep(0.2)
 
     def thread_sender_info(self, string):
         self.conn.send(encode(string))

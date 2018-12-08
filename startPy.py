@@ -15,24 +15,15 @@ def thread_client(sock, conn):
         if msg == '#shutdown#':
             print(msg, '-> killing the socket!')
             sock.close()
-        thread = Deserializer(conn, msg)
+        thread = Deserializer(sock, conn, msg)
         thread.start()
     conn.close()
-
-def thread_costumer(sock, conn):
-    col = ColorSensor(INPUT_4)
-    while 1:
-        message = 'c' + '&' + str(col.reflected_light_intensity) + '&' + str(col.color_name)
-        conn.send(str.encode(message))
-        time.sleep(1)
-
 
 def waiting(sock):
     while 1:
         conn, addr = sock.accept()
         print('# connected to: ' + addr[0] + ':' + str(addr[1]))
         start_new_thread(thread_client, (sock, conn,))
-        start_new_thread(thread_costumer, (sock, conn,))
 
 
 host = ''
