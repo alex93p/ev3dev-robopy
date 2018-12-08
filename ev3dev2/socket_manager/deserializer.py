@@ -38,6 +38,10 @@ class Deserializer (Thread):
                 if self.message[3] is 'c':
                     if self.message[4] is 'b':
                         start_new_thread(self.thread_costumer, (self.sock, self.conn,))
+
+                if self.message[3] is 'u':
+                    if self.message[4] is 'b':
+                        start_new_thread(self.thread_distance, (self.sock, self.conn,))
  
                 # devo inviare un messaggio di informazioni di un sensore
                 elif self.message[3] is 's':
@@ -52,14 +56,13 @@ class Deserializer (Thread):
                 msg = self.message[3:-1]
                 ev3.Sound.speak(msg).wait()
 
-
         # il robot sta leggendo un messaggio corrotto
         else:
             print('WTF!! strange message:  ' + self.message)
 
     def thread_costumer(self, sock, conn):
-        light = 0;
-        condition = True;
+        light = 0
+        condition = True
         col = ColorSensor(INPUT_4)
 
         while condition:
@@ -70,7 +73,22 @@ class Deserializer (Thread):
             
             message = 'c' + '&' + str(col.reflected_light_intensity) + '&' + str(col.color_name)
             conn.send(str.encode(message))
-            time.sleep(0.2)
+            time.sleep(0.3)
+
+    def thread_distance(self, sock, conn):
+        counter = 0
+        condition = True
+        ultra = UltrasonicSensor(INPUT_3)
+
+        while condition:
+            message = 'g' + '&' + str(int(ultra.distance_centimeters))
+            conn.send(str.encode(message))
+            time.sleep(0.1)
+
+            if  int(ultra.distance_centimeters) == 18 or int(ultra.distance_centimeters) > 48:
+                message = 'g' + '&' + str(18)
+                conn.send(str.encode(message))
+                condition = False
 
     def thread_sender_info(self, string):
         self.conn.send(encode(string))

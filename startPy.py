@@ -19,6 +19,7 @@ def thread_client(sock, conn):
         thread.start()
     conn.close()
 
+
 def waiting(sock):
     while 1:
         conn, addr = sock.accept()
