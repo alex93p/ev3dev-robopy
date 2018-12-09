@@ -7,6 +7,7 @@ from ev3dev2.sensor.lego import *
 from ev3dev2.sensor import *
 from ev3dev2.utility.degreeconverter import *
 import ev3dev.ev3 as ev3
+import random
 
 
 class Deserializer (Thread):
@@ -31,6 +32,10 @@ class Deserializer (Thread):
             # se sto leggendo una richiesta di esecuzione di un motore
             if self.message[2] is 'e':
                 self.runner_motor(self.motor_type_switcher.get(int(self.message[3])), option=self.message[4:])
+
+            # sto leggendo una richiesta di configurazione torre
+            elif self.message[2] is 'p':
+                start_new_thread(self.thread_tower_builder_and_sender, (self,))
 
             # sto leggendo una richiesta di informazioni
             elif self.message[2] is 'r':
@@ -60,6 +65,14 @@ class Deserializer (Thread):
         else:
             print('WTF!! strange message:  ' + self.message)
 
+    def thread_tower_builder_and_sender(self):
+        pool = ['Black&', 'Black&', 'Blue&', 'Blue&', 'Yellow&', 'Yellow&', 'Red&', 'Red&']
+        str_text = '#r&t&'
+        end_text = '#'
+        rand = random.sample(pool, 4)
+        message = str_text + rand[0] + rand[1] + rand[2] + rand[3] + end_text
+        self.conn.send(str.encode(message))
+
     def thread_costumer(self, sock, conn):
         light = 0
         condition = True
@@ -85,7 +98,7 @@ class Deserializer (Thread):
             conn.send(str.encode(message))
             time.sleep(0.1)
 
-            if  int(ultra.distance_centimeters) == 18 or int(ultra.distance_centimeters) > 48:
+            if int(ultra.distance_centimeters) == 18 or int(ultra.distance_centimeters) > 48:
                 message = 'g' + '&' + str(18)
                 conn.send(str.encode(message))
                 condition = False
