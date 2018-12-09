@@ -35,7 +35,7 @@ class Deserializer (Thread):
 
             # sto leggendo una richiesta di configurazione torre
             elif self.message[2] is 'p':
-                start_new_thread(self.thread_tower_builder_and_sender, (self,))
+                start_new_thread(self.thread_tower_builder_and_sender, ())
 
             # sto leggendo una richiesta di informazioni
             elif self.message[2] is 'r':
@@ -70,8 +70,9 @@ class Deserializer (Thread):
         str_text = '#r&t&'
         end_text = '#'
         rand = random.sample(pool, 4)
-        message = str_text + rand[0] + rand[1] + rand[2] + rand[3] + end_text
+        message = '' + str_text + rand[0] + rand[1] + rand[2] + rand[3] + end_text
         self.conn.send(str.encode(message))
+        print ('thread has sent back:', message)
 
     def thread_costumer(self, sock, conn):
         light = 0
