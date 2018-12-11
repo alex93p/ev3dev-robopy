@@ -41,12 +41,7 @@ class Deserializer (Thread):
             elif self.message[2] is 'r':
                 # devo inviare i dati del sensore colore
                 if self.message[3] is 'c':
-                    if self.message[4] is 'b':
-                        start_new_thread(self.thread_costumer, (self.sock, self.conn,))
-
-                if self.message[3] is 'u':
-                    if self.message[4] is 'b':
-                        start_new_thread(self.thread_distance, (self.sock, self.conn,))
+                    start_new_thread(self.thread_check_color, ())
  
                 # devo inviare un messaggio di informazioni di un sensore
                 elif self.message[3] is 's':
@@ -65,6 +60,56 @@ class Deserializer (Thread):
         else:
             print('WTF!! strange message:  ' + self.message)
 
+    def thread_check_color(self):
+        braccio = LargeMotor(OUTPUT_C)
+        mano = MediumMotor(OUTPUT_D)
+        ultra = UltrasonicSensor(INPUT_3)
+        col = ColorSensor(INPUT_4)
+        dist = round(ultra.distance_centimeters, 2)
+        stop = False
+        min_dist = 18.3
+        max_dist = 18.6
+        dir = -1
+        if dist > max_dist:
+            dir = 1
+        braccio.on(SpeedPercent(dir * 10))
+        while dist < min_dist or dist > max_dist:
+            dist = round(ultra.distance_centimeters, 2)
+        braccio.off()
+        mano.on(SpeedPercent(70))
+        while col.reflected_light_intensity == 0:
+            continue
+        mano.off()
+        mano.on(SpeedPercent(10))
+        color_name = 'No color'
+        while color_name == 'No color' or color_name is None or color_name == 'None':
+            color_name = self.control_color(col.reflected_light_intensity, col.color_name)
+        mano.off()
+        print(color_name)
+        ev3.Sound.speak(color_name).wait()
+
+    def control_color(self, luce, colore):
+        if colore == 'Black':
+            if 1 < luce < 7:
+                return 'Black'
+            else:
+                return 'No color'
+        elif colore == 'Blue':
+            if luce < 15:
+                return 'Blue'
+            else:
+                return 'No color'
+        elif colore == 'Yellow':
+            if luce > 25:
+                return 'Yellow'
+            else:
+                return 'No color'
+        elif colore == 'Red':
+            if 10 < luce < 35:
+                return 'Red'
+            else:
+                return 'No color'
+
     def thread_tower_builder_and_sender(self):
         pool = ['Black&', 'Black&', 'Blue&', 'Blue&', 'Yellow&', 'Yellow&', 'Red&', 'Red&']
         str_text = '#r&t&'
@@ -72,9 +117,9 @@ class Deserializer (Thread):
         rand = random.sample(pool, 4)
         message = '' + str_text + rand[0] + rand[1] + rand[2] + rand[3] + end_text
         self.conn.send(str.encode(message))
-        print ('thread has sent back:', message)
+        print('thread has sent back:', message)
 
-    def thread_costumer(self, sock, conn):
+    def thread_costumer(self):
         light = 0
         condition = True
         col = ColorSensor(INPUT_4)
@@ -86,26 +131,27 @@ class Deserializer (Thread):
                 condition = False
             
             message = 'c' + '&' + str(col.reflected_light_intensity) + '&' + str(col.color_name)
-            conn.send(str.encode(message))
+            print(message)
+            self.conn.send(str.encode(message))
             time.sleep(0.3)
 
-    def thread_distance(self, sock, conn):
-        counter = 0
+    def thread_distance(self):
         condition = True
         ultra = UltrasonicSensor(INPUT_3)
 
         while condition:
             message = 'g' + '&' + str(int(ultra.distance_centimeters))
-            conn.send(str.encode(message))
+            self.conn.send(str.encode(message))
             time.sleep(0.1)
 
-            if int(ultra.distance_centimeters) == 18 or int(ultra.distance_centimeters) > 48:
-                message = 'g' + '&' + str(18)
-                conn.send(str.encode(message))
+            if int(ultra.distance_centimeters) == 19 or int(ultra.distance_centimeters) > 48:
+                message = 'g' + '&' + str(19)
+                print('distance: ', message)
+                self.conn.send(str.encode(message))
                 condition = False
 
     def thread_sender_info(self, string):
-        self.conn.send(encode(string))
+        self.conn.send(str.encode(string))
 
     def thread_sender_motor_info(self, position, typem):
         message = '#r&' + 'm&' + str(typem) + '&' + str(position) + '&#'
