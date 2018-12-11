@@ -8,6 +8,7 @@ from ev3dev2.sensor import *
 from ev3dev2.utility.degreeconverter import *
 import ev3dev.ev3 as ev3
 import random
+import time
 
 
 class Deserializer (Thread):
@@ -66,26 +67,34 @@ class Deserializer (Thread):
         ultra = UltrasonicSensor(INPUT_3)
         col = ColorSensor(INPUT_4)
         dist = round(ultra.distance_centimeters, 2)
-        stop = False
-        min_dist = 18.8
-        max_dist = 19.3
-        dir = -1
-        if dist > max_dist:
-            dir = 1
-        braccio.on(SpeedPercent(dir * 10))
-        while dist < min_dist or dist > max_dist:
-            dist = round(ultra.distance_centimeters, 2)
+        h_min = 11.4
+        h_max = 11.3
+        dir = 1
+        if dist > h_min:
+            dir = -1
+        braccio.on(SpeedPercent(dir * 5))
+        while dist > h_min or dist < h_max:
+            dist = round(ultra.distance_centimeters, 1)
         braccio.off()
-        mano.on(SpeedPercent(50))
+        mano.on(SpeedPercent(35))
         while col.reflected_light_intensity == 0:
             continue
         mano.off()
         mano.on(SpeedPercent(10))
         color_name = 'No color'
-        while color_name == 'No color' or color_name is None or color_name == 'None':
+        col1 = 'a'
+        col2 = 'b'
+        while color_name == 'No color' or col1 != col2 or color_name is None or color_name == 'None':
             color_name = self.control_color(col.reflected_light_intensity, col.color_name)
+            col1 = color_name
+            time.sleep(0.5)
+            color_name = self.control_color(col.reflected_light_intensity, col.color_name)
+            col2 = color_name
+
         mano.off()
         print(color_name)
+        message = '#r&c&' + color_name + '&#'
+        self.conn.send(str.encode(message))
         ev3.Sound.speak(color_name).wait()
 
     def control_color(self, luce, colore):
