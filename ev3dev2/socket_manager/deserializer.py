@@ -67,8 +67,8 @@ class Deserializer (Thread):
         col = ColorSensor(INPUT_4)
         dist = round(ultra.distance_centimeters, 2)
         stop = False
-        min_dist = 18.3
-        max_dist = 18.6
+        min_dist = 18.8
+        max_dist = 19.3
         dir = -1
         if dist > max_dist:
             dir = 1
@@ -76,7 +76,7 @@ class Deserializer (Thread):
         while dist < min_dist or dist > max_dist:
             dist = round(ultra.distance_centimeters, 2)
         braccio.off()
-        mano.on(SpeedPercent(70))
+        mano.on(SpeedPercent(50))
         while col.reflected_light_intensity == 0:
             continue
         mano.off()
