@@ -35,12 +35,14 @@ def waiting(sock):
     global message
     while 1:
         conn, addr = sock.accept()
+        '''
         users += 1
         if users == 1:
             message = tower_builder()
             conn.send(str.encode(message))
         elif users == 2:
             conn.send(str.encode(message))
+        '''
         print('# connected to: ' + addr[0] + ':' + str(addr[1]))
         start_new_thread(thread_client, (sock, conn,))
 
