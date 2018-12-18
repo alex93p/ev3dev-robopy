@@ -13,6 +13,7 @@ def tower_builder():
     mess = '' + str_text + rand[0] + rand[1] + rand[2] + rand[3] + end_text
     return mess
 
+
 def thread_client(sock, conn):
     global users
     while 1:
