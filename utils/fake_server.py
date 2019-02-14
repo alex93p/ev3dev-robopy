@@ -3,7 +3,7 @@
 import socket
 from _thread import *
 
-host = '192.168.2.122'
+host = '192.168.43.51'
 port = 8888
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
